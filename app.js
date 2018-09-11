@@ -29,7 +29,7 @@ app.use(bodyParser.urlencoded({
 app.set('views', viewPath);
 app.set('view engine', 'pug');
 
-let profileData = [];
+let profileData = {};
 let timelineData = [];
 let friendsData = [];
 let directMessagesData = [];
@@ -52,7 +52,7 @@ app.use((req, res, next) => {
         bannerPicture: bannerPicture,
         followersCount: followersCount
       };
-      profileData.push(profData);
+      profileData = profData;
       next();
     } else {
       console.log('Account failed: ' + err.message);
