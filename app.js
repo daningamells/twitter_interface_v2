@@ -46,11 +46,13 @@ app.use((req, res, next) => {
       const profilPicture = data.profile_image_url;
       const bannerPicture = data.profile_banner_url;
       const followersCount = data.followers_count;
+      const name = data.name;
       const profData = {
         username: username,
         profilPicture: profilPicture,
         bannerPicture: bannerPicture,
-        followersCount: followersCount
+        followersCount: followersCount,
+        name: name
       };
       profileData = profData;
       next();
@@ -83,7 +85,7 @@ app.use((req, res, next) => {
       }
     } else {
       console.log('Timeline failed: ' + err.message);
-      next(err);
+      next(err); //engage error handler with current error
     }
   });
 });
@@ -97,14 +99,14 @@ app.use((req, res, next) => {
         const friends = {
           realName: data.users[i].name,
           screenName: data.users[i].screen_name,
-          profilPicture: data.users[i].profile_image_url
+          profilePicture: data.users[i].profile_image_url
         };
         friendsData.push(friends);
         next();
       }
     } else {
       console.log('Followers failed: ' + err.message);
-      next(err);
+      next(err); //engage error handler with current error
     }
   });
 });
@@ -133,12 +135,20 @@ app.use((req, res, next) => {
           }
         } else {
           console.log('Direct messages failed: ' + err.message);
-          next(err);
+          next(err); //engage error handler with current error
         }
       });
     });
 
+/*****************************************
+    Routing
+    Set up routes for the home & error pages
+*****************************************/
+
     app.get('/', (req, res) => {
+      timelineData = timelineData.slice(0, 5);
+      friendsData = friendsData.slice(0, 5);
+      directMessagesData = directMessagesData.slice(0, 5);
     res.render('index', { //render index.pug with all Twitter data
         timelineData: timelineData,
         friendsData: friendsData,
@@ -146,6 +156,44 @@ app.use((req, res, next) => {
         profileData: profileData
     });
 });
+
+/*****************************************
+    Form post request
+*****************************************/
+
+app.post('/', (req, res, next) => {
+  // If a tweet exists, fill in the status and then redirect
+  if (req.body.tweet) {
+    T.post('statuses/update', { status: req.body.tweet }, (err, data, response) => {
+      res.redirect('/');
+      next()
+    });
+  // Otherwise redirect the user
+  } else {
+      res.redirect('/');
+      next(err);
+  }
+});
+
+/*****************************************
+    ERROR HANDLING
+    making a 404 error & handling errors
+*****************************************/
+
+// 404 error
+app.use((req, res, next) => {
+    const err = new Error ('Page not found.'); //generate the error
+    next(err); //pass error to error handler
+});
+
+//our error handler middleware
+app.use((err, req, res, next) => { //called by doing a next(err)
+    res.render('error', { error : err }); //render error.pug with current "err" object
+});
+
+/*****************************************
+    Setting up the server
+*****************************************/
 
     app.listen(3000, () => {
       console.log('the application is running3');

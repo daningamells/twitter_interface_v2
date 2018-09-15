@@ -1,0 +1,15 @@
+.grid-33
+  .app--section
+    ul.app--message--list
+      each message in directMessagesData
+        li
+          h3
+            | Conversation with 
+            a #{profileData.name}
+          ul.app--message--conversation
+            li.app--message
+              .app--avatar(style='background-image: url(' + message.profilPictureSender + ')')
+              p.app--message--text #{message.text}
+              p.app--message--timestamp #{message.fullDate}, #{message.timeSent}
+          
+              block content

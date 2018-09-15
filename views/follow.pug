@@ -1,0 +1,14 @@
+.grid-33
+  .app--section
+    ul.app--user--list
+      each friends in friendsData 
+        li
+          .circle--fluid
+            .circle--fluid--cell.circle--fluid--primary
+              a.app--tweet--author
+                .app--avatar(style='background-image: url(' + friends.profilePicture + ')')
+                h4 #{friends.realName}
+                p #{friends.screenName}
+            .circle--fluid--cell
+              a.button.button-text Unfollow
+              block content
