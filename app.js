@@ -67,6 +67,7 @@ app.use((req, res, next) => {
   T.get('statuses/user_timeline', {
     count: 5
   }, function(err, data, response) {
+    timelineData = [];
     if (!err) {
       for (var i = 0; i < 5; i++) {
         const dateSent = data[i].created_at.substr(0, 10);
@@ -81,12 +82,13 @@ app.use((req, res, next) => {
           like: data[i].favorite_count,
         };
         timelineData.push(tweetInfo);
-        next();
+
       }
     } else {
       console.log('Timeline failed: ' + err.message);
       next(err); //engage error handler with current error
     }
+    next();
   });
 });
 
@@ -102,12 +104,12 @@ app.use((req, res, next) => {
           profilePicture: data.users[i].profile_image_url
         };
         friendsData.push(friends);
-        next();
       }
     } else {
       console.log('Followers failed: ' + err.message);
       next(err); //engage error handler with current error
     }
+    next();
   });
 });
 
@@ -131,12 +133,13 @@ app.use((req, res, next) => {
               timeSent: timeSent
             };
             directMessagesData.push(message)
-            next();
+
           }
         } else {
           console.log('Direct messages failed: ' + err.message);
           next(err); //engage error handler with current error
         }
+        next();
       });
     });
 
@@ -165,12 +168,13 @@ app.post('/', (req, res, next) => {
   // If a tweet exists, fill in the status and then redirect
   if (req.body.tweet) {
     T.post('statuses/update', { status: req.body.tweet }, (err, data, response) => {
-      res.redirect('/');
+
+      return res.redirect('/');
       next()
     });
   // Otherwise redirect the user
   } else {
-      res.redirect('/');
+      return res.redirect('/');
       next(err);
   }
 });
